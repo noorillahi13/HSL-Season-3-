@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HSL Season 3 | Village Cricket Tournament</title>
+<style>
+:root{--bg:#071711;--panel:#10251c;--panel2:#163226;--line:#2b4a3a;--text:#f3f7f3;--muted:#aec4b6;--green:#91e5a7;--gold:#f5d477;--red:#ff9a9a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top right,#173b2a 0,#071711 45%);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{padding:28px 18px 20px;text-align:center;border-bottom:1px solid var(--line);background:#071711aa}
+.eyebrow{color:var(--green);font-weight:800;letter-spacing:.18em;font-size:.76rem}
+h1{margin:5px 0;font-size:clamp(2rem,7vw,3.5rem);line-height:1.05;letter-spacing:.03em}
+header p{color:var(--muted);margin:10px auto 0;max-width:700px}
+.wrap{max-width:1150px;margin:auto;padding:18px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:8px 0 18px}
+.stat,.panel{background:linear-gradient(145deg,var(--panel),#0c1e16);border:1px solid var(--line);border-radius:16px}
+.stat{padding:15px}.stat span{display:block;color:var(--muted);font-size:.84rem}.stat strong{font-size:1.8rem}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
+button,.tab{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:10px 14px;border-radius:10px;font-weight:750;cursor:pointer}
+button.primary,.tab.active{background:var(--green);color:#082014;border-color:var(--green)}
+button.danger{border-color:#804444;color:#ffd0d0;background:#351b1b}
+button:disabled{opacity:.4;cursor:not-allowed}
+.tabpanel{display:none}.tabpanel.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.panel{padding:18px;margin-bottom:14px;min-width:0}
+h2{font-size:1.18rem;margin:0 0 12px}h3{font-size:1rem;margin:0 0 8px}
+label{display:block;color:var(--muted);font-size:.86rem;margin:8px 0 4px}
+input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;background:#081810;color:var(--text);font:inherit}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.note{color:var(--muted);font-size:.84rem}
+.scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:540px}th,td{text-align:left;padding:10px 9px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--muted);font-size:.8rem}td strong{color:var(--green)}
+.badge{display:inline-block;padding:3px 8px;border-radius:20px;background:#214b34;color:#c6f7d1;font-size:.75rem;font-weight:800}
+.teamcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.teamcard{background:#0a1b13;border:1px solid var(--line);border-radius:12px;padding:14px}
+.teamhead{display:flex;justify-content:space-between;gap:8px;align-items:start}
+.roster{margin:10px 0 0;padding-left:22px;color:var(--muted)}.roster li{padding:2px 0}
+.empty{padding:20px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px}
+.status{margin-top:10px;color:var(--gold);font-size:.9rem}
+footer{text-align:center;color:var(--muted);padding:22px;font-size:.82rem}
+@media(max-width:720px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,minmax(0,1fr))}.stat{padding:11px}.stat strong{font-size:1.35rem}.wrap{padding:12px}.panel{padding:14px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">VILLAGE CRICKET TOURNAMENT</div>
+  <h1>HSL SEASON 3</h1>
+  <p>12 teams · 15-player squads · 6-over and 8-over matches</p>
+</header>
+<main class="wrap">
+  <div class="stats">
+    <div class="stat"><span>Teams registered</span><strong id="teamCount">0/12</strong></div>
+    <div class="stat"><span>Players registered</span><strong id="playerCount">0/180</strong></div>
+    <div class="stat"><span>Matches recorded</span><strong id="matchCount">0</strong></div>
+  </div>
+  <nav class="tabs">
+    <button class="tab active" data-tab="home">Overview</button>
+    <button class="tab" data-tab="teams">Teams & Squads</button>
+    <button class="tab" data-tab="matches">Matches & Results</button>
+    <button class="tab" data-tab="stats">Player Stats</button>
+    <button class="tab" data-tab="organizer">Organizer</button>
+  </nav>
+
+  <section class="tabpanel active" id="home">
+    <div class="grid">
+      <div class="panel"><h2>Points Table</h2><div id="pointsTable" class="scroll"></div><p class="note">Win = 2 points · Tie = 1 point each · Loss = 0 points. Tie-break order: points, wins, then run difference.</p></div>
+      <div class="panel"><h2>Final Qualification (current projection)</h2><div id="finalProjection"></div><p class="note">The top two teams are shown as projected finalists based on current recorded results. This updates as results are entered.</p></div>
+    </div>
+    <div class="panel"><h2>Recent Results</h2><div id="recentMatches"></div></div>
+  </section>
+
+  <section class="tabpanel" id="teams">
+    <div class="panel"><h2>Teams & 15-player squads</h2><p class="note">Register up to 12 teams. Each team can have up to 15 named players.</p><div id="teamCards"></div></div>
+  </section>
+
+  <section class="tabpanel" id="matches">
+    <div class="panel"><h2>Recorded Matches</h2><div id="matchList"></div></div>
+  </section>
+
+  <section class="tabpanel" id="stats">
+    <div class="panel"><h2>Batting & Bowling Stats</h2><div id="playerStatsTable"></div><p class="note">Enter each player's tournament-to-date runs and wickets in Organizer. These are cumulative totals, not a ball-by-ball scorecard.</p></div>
+  </section>
+
+  <section class="tabpanel" id="organizer">
+    <div class="grid">
+      <div class="panel">
+        <h2>1. Add a Team</h2>
+        <form id="teamForm">
+          <label for="teamName">Team name</label><input id="teamName" maxlength="40" placeholder="e.g. HSL Tigers" required>
+          <div class="actions"><button class="primary" id="addTeamBtn">Add Team</button></div>
+          <p class="note">Maximum 12 teams. Team names must be unique.</p>
+        </form>
+        <div id="teamFormStatus" class="status" role="status"></div>
+      </div>
+      <div class="panel">
+        <h2>2. Add Player to Squad</h2>
+        <form id="playerForm">
+          <label for="playerTeam">Team</label><select id="playerTeam" required></select>
+          <label for="playerName">Player name</label><input id="playerName" maxlength="50" placeholder="Full name" required>
+          <div class="actions"><button class="primary" id="addPlayerBtn">Add Player</button></div>
+          <p class="note">Maximum 15 players per team; player names must be unique within that team.</p>
+        </form>
+        <div id="playerFormStatus" class="status" role="status"></div>
+      </div>
+      <div class="panel">
+        <h2>3. Record Match Result</h2>
+        <form id="matchForm">
+          <div class="row">
+            <div><label for="matchTeamA">Team A</label><select id="matchTeamA" required></select></div>
+            <div><label for="matchTeamB">Team B</label><select id="matchTeamB" required></select></div>
+          </div>
+          <div class="row">
+            <div><label for="matchOvers">Match format</label><select id="matchOvers"><option value="6">6 overs</option><option value="8">8 overs</option></select></div>
+            <div><label for="matchDate">Date</label><input type="date" id="matchDate" required></div>
+          </div>
+          <div class="row">
+            <div><label for="scoreA">Team A runs</label><input type="number" id="scoreA" min="0" max="999" required></div>
+            <div><label for="scoreB">Team B runs</label><input type="number" id="scoreB" min="0" max="999" required></div>
+          </div>
+          <label for="matchNote">Optional note</label><input id="matchNote" maxlength="100" placeholder="e.g. Final / Semi-final">
+          <div class="actions"><button class="primary" id="addMatchBtn">Save Result</button></div>
+        </form>
+        <div id="matchFormStatus" class="status" role="status"></div>
+      </div>
+      <div class="panel">
+        <h2>4. Update Player Stats</h2>
+        <form id="statsForm">
+          <label for="statsTeam">Team</label><select id="statsTeam" required></select>
+          <label for="statsPlayer">Player</label><select id="statsPlayer" required></select>
+          <div class="row">
+            <div><label for="playerRuns">Total runs</label><input type="number" id="playerRuns" min="0" max="99999" value="0" required></div>
+            <div><label for="playerWickets">Total wickets</label><input type="number" id="playerWickets" min="0" max="999" value="0" required></div>
+          </div>
+          <div class="actions"><button class="primary" id="saveStatsBtn">Save Stats</button></div>
+          <p class="note">Enter the player's cumulative tournament totals; saving replaces the current totals.</p>
+        </form>
+        <div id="statsFormStatus" class="status" role="status"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Backup & Reset</h2>
+      <p class="note">Data is saved in this browser on this device. Download a backup regularly. To share live updates with everyone, the site needs online hosting and a shared database.</p>
+      <div class="actions">
+        <button id="exportBtn">Download Backup</button>
+        <button id="importBtn">Restore Backup</button><input type="file" id="importFile" accept="application/json" hidden>
+        <button class="danger" id="resetBtn">Reset All Tournament Data</button>
+      </div>
+      <div id="backupStatus" class="status" role="status"></div>
+    </div>
+  </section>
+</main>
+<footer>HSL Season 3 · Local tournament tracker · Keep a backup of your data</footer>
+<script>
+const KEY='hsl-season-3-v2';
+const blank=()=>({teams:[],matches:[],playerStats:{}});
+let data=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||blank()}catch(e){return blank()}}
+function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function team(id){return data.teams.find(t=>t.id===id)}
+function playerKey(tid,pid){return tid+'__'+pid}
+function allPlayers(){return data.teams.flatMap(t=>t.players.map(p=>({...p,teamId:t.id,teamName:t.name,...(data.playerStats[playerKey(t.id,p.id)]||{runs:0,wickets:0})})))}
+function statsFor(tid){return data.playerStats[playerKey(tid,'')]||{runs:0,wickets:0}}
+function standings(){
+ const arr=data.teams.map(t=>({id:t.id,name:t.name,played:0,wins:0,losses:0,ties:0,points:0,for:0,against:0}));
+ const byId=Object.fromEntries(arr.map(x=>[x.id,x]));
+ data.matches.forEach(m=>{let a=byId[m.a],b=byId[m.b];if(!a||!b)return;a.played++;b.played++;a.for+=m.sa;a.against+=m.sb;b.for+=m.sb;b.against+=m.sa;
+ if(m.sa>m.sb){a.wins++;a.points+=2;b.losses++}else if(m.sb>m.sa){b.wins++;b.points+=2;a.losses++}else{a.ties++;b.ties++;a.points++;b.points++}});
+ arr.forEach(x=>x.diff=x.for-x.against);
+ return arr.sort((a,b)=>b.points-a.points||b.wins-a.wins||b.diff-a.diff||b.for-a.for||a.name.localeCompare(b.name));
+}
+function fillSelect(id,placeholder,selected){const el=document.getElementById(id);const old=selected??el.value;el.innerHTML=`<option value="">${esc(placeholder)}</option>`+data.teams.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join('');if(data.teams.some(t=>t.id===old))el.value=old}
+function refreshSelects(){
+ ['playerTeam','statsTeam'].forEach(id=>fillSelect(id,'Choose team'));
+ ['matchTeamA','matchTeamB'].forEach(id=>fillSelect(id,'Choose team'));
+ updatePlayerSelect();
+}
+function updatePlayerSelect(){
+ const tid=document.getElementById('statsTeam').value,el=document.getElementById('statsPlayer'),old=el.value;
+ const t=team(tid);el.innerHTML='<option value="">Choose player</option>'+(t?t.players.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join(''):'');
+ if(t&&t.players.some(p=>p.id===old))el.value=old;
+ loadPlayerStatInputs();
+}
+function loadPlayerStatInputs(){
+ const t=team(document.getElementById('statsTeam').value),p=t&&t.players.find(p=>p.id===document.getElementById('statsPlayer').value);
+ const s=p?(data.playerStats[playerKey(t.id,p.id)]||{runs:0,wickets:0}):{runs:0,wickets:0};
+ document.getElementById('playerRuns').value=s.runs;document.getElementById('playerWickets').value=s.wickets;
+}
+function render(){
+ document.getElementById('teamCount').textContent=`${data.teams.length}/12`;
+ document.getElementById('playerCount').textContent=`${allPlayers().length}/180`;
+ document.getElementById('matchCount').textContent=data.matches.length;
+ refreshSelects();
+ const st=standings();
+ document.getElementById('pointsTable').innerHTML=st.length?`<table><thead><tr><th>#</th><th>Team</th><th>P</th><th>W</th><th>L</th><th>T</th><th>Pts</th><th>Run diff</th></tr></thead><tbody>${st.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.name)} ${i<2?'<span class="badge">Final projection</span>':''}</td><td>${x.played}</td><td>${x.wins}</td><td>${x.losses}</td><td>${x.ties}</td><td><strong>${x.points}</strong></td><td>${x.diff>0?'+':''}${x.diff}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Add teams in Organizer to start the points table.</div>';
+ document.getElementById('finalProjection').innerHTML=st.length>=2?`<div class="teamcards">${st.slice(0,2).map((x,i)=>`<div class="teamcard"><span class="badge">Projected finalist ${i+1}</span><h3 style="margin-top:8px">${esc(x.name)}</h3><div class="note">${x.points} points · ${x.wins} wins · ${x.diff>0?'+':''}${x.diff} run difference</div></div>`).join('')}</div>`:'<div class="empty">Add at least two teams to show a projection.</div>';
+ const matchHtml=m=>{const a=team(m.a),b=team(m.b);return `<div class="teamcard"><div class="teamhead"><strong>${esc(a?.name||'Deleted team')} ${m.sa} – ${m.sb} ${esc(b?.name||'Deleted team')}</strong><span class="badge">${m.overs} overs</span></div><div class="note">${esc(m.date)}${m.note?' · '+esc(m.note):''}</div></div>`};
+ document.getElementById('recentMatches').innerHTML=data.matches.length?`<div class="teamcards">${[...data.matches].reverse().slice(0,4).map(matchHtml).join('')}</div>`:'<div class="empty">No results recorded yet.</div>';
+ document.getElementById('matchList').innerHTML=data.matches.length?`<div class="teamcards">${[...data.matches].reverse().map((m,i)=>`${matchHtml(m)}<div class="actions"><button class="danger" onclick="deleteMatch('${m.id}')">Delete result</button></div>`).join('')}</div>`:'<div class="empty">No matches yet. Record a result in Organizer.</div>';
+ document.getElementById('teamCards').innerHTML=data.teams.length?`<div class="teamcards">${data.teams.map(t=>`<div class="teamcard"><div class="teamhead"><div><h3>${esc(t.name)}</h3><span class="note">${t.players.length}/15 players</span></div><button class="danger" onclick="deleteTeam('${t.id}')">Delete</button></div><ol class="roster">${t.players.length?t.players.map(p=>`<li>${esc(p.name)} <span class="note">· ${(data.playerStats[playerKey(t.id,p.id)]||{runs:0,wickets:0}).runs} runs, ${(data.playerStats[playerKey(t.id,p.id)]||{runs:0,wickets:0}).wickets} wkts</span></li>`).join(''):'<li>No players added</li>'}</ol></div>`).join('')}</div>`:'<div class="empty">No teams registered yet. Add teams in Organizer.</div>';
+ const ps=allPlayers().sort((a,b)=>b.runs-a.runs||b.wickets-a.wickets||a.name.localeCompare(b.name));
+ document.getElementById('playerStatsTable').innerHTML=ps.length?`<div class="scroll"><table><thead><tr><th>Player</th><th>Team</th><th>Runs</th><th>Wickets</th></tr></thead><tbody>${ps.map(p=>`<tr><td>${esc(p.name)}</td><td>${esc(p.teamName)}</td><td><strong>${p.runs}</strong></td><td><strong>${p.wickets}</strong></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Add players to squads, then enter their stats in Organizer.</div>';
+ document.getElementById('addTeamBtn').disabled=data.teams.length>=12;
+ document.getElementById('addPlayerBtn').disabled=!data.teams.some(t=>t.players.length<15);
+ document.getElementById('addMatchBtn').disabled=data.teams.length<2;
+ document.getElementById('saveStatsBtn').disabled=!data.teams.some(t=>t.players.length);
+}
+document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b===btn));document.querySelectorAll('.tabpanel').forEach(p=>p.classList.toggle('active',p.id===btn.dataset.tab))}));
+document.getElementById('teamForm').addEventListener('submit',e=>{e.preventDefault();const name=document.getElementById('teamName').value.trim();const status=document.getElementById('teamFormStatus');if(data.teams.length>=12){status.textContent='Maximum 12 teams reached.';return}if(data.teams.some(t=>t.name.toLowerCase()===name.toLowerCase())){status.textContent='That team name already exists.';return}data.teams.push({id:crypto.randomUUID(),name,players:[]});document.getElementById('teamName').value='';status.textContent=`${name} added.`;save()});
+document.getElementById('playerForm').addEventListener('submit',e=>{e.preventDefault();const t=team(document.getElementById('playerTeam').value),name=document.getElementById('playerName').value.trim(),status=document.getElementById('playerFormStatus');if(!t){status.textContent='Choose a team first.';return}if(t.players.length>=15){status.textContent='This team already has 15 players.';return}if(t.players.some(p=>p.name.toLowerCase()===name.toLowerCase())){status.textContent='That player is already in this squad.';return}t.players.push({id:crypto.randomUUID(),name});document.getElementById('playerName').value='';status.textContent=`${name} added to ${t.name}.`;save()});
+document.getElementById('statsTeam').addEventListener('change',updatePlayerSelect);
+document.getElementById('statsPlayer').addEventListener('change',loadPlayerStatInputs);
+document.getElementById('matchForm').addEventListener('submit',e=>{e.preventDefault();const a=document.getElementById('matchTeamA').value,b=document.getElementById('matchTeamB').value,status=document.getElementById('matchFormStatus');if(!a||!b||a===b){status.textContent='Choose two different teams.';return}const sa=Number(document.getElementById('scoreA').value),sb=Number(document.getElementById('scoreB').value);data.matches.push({id:crypto.randomUUID(),a,b,sa,sb,overs:Number(document.getElementById('matchOvers').value),date:document.getElementById('matchDate').value,note:document.getElementById('matchNote').value.trim()});status.textContent='Match result saved.';document.getElementById('scoreA').value='';document.getElementById('scoreB').value='';document.getElementById('matchNote').value='';save()});
+document.getElementById('statsForm').addEventListener('submit',e=>{e.preventDefault();const t=team(document.getElementById('statsTeam').value),p=t&&t.players.find(p=>p.id===document.getElementById('statsPlayer').value),status=document.getElementById('statsFormStatus');if(!t||!p){status.textContent='Choose a team and player.';return}data.playerStats[playerKey(t.id,p.id)]={runs:Number(document.getElementById('playerRuns').value),wickets:Number(document.getElementById('playerWickets').value)};status.textContent=`Stats saved for ${p.name}.`;save()});
+window.deleteMatch=id=>{if(confirm('Delete this match result?')){data.matches=data.matches.filter(m=>m.id!==id);save()}};
+window.deleteTeam=id=>{const t=team(id);if(!t)return;if(!confirm(`Delete ${t.name} and its recorded matches?`))return;data.teams=data.teams.filter(x=>x.id!==id);data.matches=data.matches.filter(m=>m.a!==id&&m.b!==id);Object.keys(data.playerStats).forEach(k=>{if(k.startsWith(id+'__'))delete data.playerStats[k]});save()};
+document.getElementById('exportBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='HSL_Season_3_backup.json';a.click();URL.revokeObjectURL(url);document.getElementById('backupStatus').textContent='Backup downloaded.'});
+document.getElementById('importBtn').addEventListener('click',()=>document.getElementById('importFile').click());
+document.getElementById('importFile').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{const parsed=JSON.parse(await file.text());if(!Array.isArray(parsed.teams)||!Array.isArray(parsed.matches)||!parsed.playerStats)throw Error('Invalid backup');if(parsed.teams.length>12||parsed.teams.some(t=>!Array.isArray(t.players)||t.players.length>15))throw Error('Backup exceeds the 12-team / 15-player limits');data=parsed;save();document.getElementById('backupStatus').textContent='Backup restored.'}catch(err){document.getElementById('backupStatus').textContent='Could not restore backup: '+err.message}e.target.value=''});
+document.getElementById('resetBtn').addEventListener('click',()=>{if(confirm('This will erase all teams, players, matches, and stats on this device. Download a backup first. Continue?')){data=blank();save();document.getElementById('backupStatus').textContent='Tournament data reset.'}});
+const today=new Date();document.getElementById('matchDate').value=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+render();
+</script>
+</body></html>
